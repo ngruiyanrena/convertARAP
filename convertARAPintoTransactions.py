@@ -14,7 +14,7 @@ def process_ARAP(file):
     ARAP_grouped = ARAP_grouped.reset_index()
     ARAP_grouped.rename(columns={'Foreign Amount': 'Sum of Foreign Amount'}, inplace=True)
     ARAP_grouped['Reference'] = f"FYE2023 Conversion: {'AP' if AP else 'AR'} Balance Transfer"
-    ARAP_grouped['Item / Description'] = ARAP_grouped['Currency'] + " Ageing Total Due on " + ARAP_grouped['Due Date']
+    ARAP_grouped['Item / Description'] = "FYE2023 Conversion: " + ARAP_grouped['Currency'] + " Ageing Total Due on " + ARAP_grouped['Due Date']
     ARAP_grouped['Bill Account'] = 'Conversion Clearing Account'
     ARAP_grouped['FX Rate'] = 'FYE Rate'
 
