@@ -7,6 +7,10 @@ def process_ARAP(file):
     ARAP_cleaned = ARAP_cleaned.dropna(axis=1, how='all')
     ARAP_cleaned = ARAP_cleaned.dropna(how='all')
     AP = True if ARAP_cleaned['Transaction Type'].str.contains('Bill').any() else False
+
+    if 'Currency' not in ARAP_cleaned.columns: 
+        ARAP_cleaned['Currency'] = 'LCY'
+    
     if 'Foreign Amount' in ARAP_cleaned.columns: 
         ARAP_cleaned = ARAP_cleaned[['Due Date', 'Currency', 'Foreign Amount']] 
         ARAP_cleaned.rename(columns={'Foreign Amount': 'Amount'}, inplace=True)
