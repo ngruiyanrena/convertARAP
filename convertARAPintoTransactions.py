@@ -19,7 +19,8 @@ def process_ARAP(file):
     ARAP_grouped['FX Rate'] = 'FYE Rate'
 
     pivot_table = ARAP_grouped[['Due Date', 'Currency', 'Sum of Foreign Amount', 'Reference', 'Item / Description', 'Bill Account', 'FX Rate']]
-    pivot_table.rename(columns={'Reference': 'Bill Reference'}, inplace=True)
+    pivot_table.rename(columns={'Item / Description': 'Bill Reference'}, inplace=True)
+    pivot_table.rename(columns={'Reference': 'Item / Description'}, inplace=True)
     pivot_table.rename(columns={'Due Date': 'Date'}, inplace=True)
     pivot_table.rename(columns={'Sum of Foreign Amount': 'Total Amount (SGD)'}, inplace=True)
     pivot_table[['Supplier', 'Tax Included in Amount', 'Internal Notes', 'Amount Paid', 'Payment Method', 'Payment Account', 'Payment Ref #', 'Transaction Fee Included (SGD)', 'Tax Included in Transaction Fees (SGD)', 'Transaction Fee Expense Account', 'Amount Withholding', 'Withholding Ref #']] = ''
