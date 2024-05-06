@@ -12,13 +12,13 @@ def process_ARAP(file):
         ARAP_cleaned['Currency'] = 'LCY'
     
     if 'Foreign Amount' in ARAP_cleaned.columns: 
-        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Supplier', 'No.', 'Currency', 'Foreign Amount']] ##########
+        ARAP_cleaned = ARAP_cleaned[['Date', 'Supplier', 'No.', 'Currency', 'Foreign Amount']] ##########
         ARAP_cleaned.rename(columns={'Foreign Amount': 'Amount'}, inplace=True)
         ARAP_cleaned.rename(columns={'Supplier': 'Contact'}, inplace=True)###########
     else:
-        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Customer', 'No.' ,'Currency', 'Amount']] #############
+        ARAP_cleaned = ARAP_cleaned[['Date', 'Customer', 'No.' ,'Currency', 'Amount']] #############
         ARAP_cleaned.rename(columns={'Customer': 'Contact'}, inplace=True)
-    ARAP_cleaned = ARAP_cleaned.dropna(subset=['Due Date'])
+    ARAP_cleaned = ARAP_cleaned.dropna(subset=['Date'])
 
     ARAP_cleaned = ARAP_cleaned.drop_duplicates()
 
@@ -32,9 +32,9 @@ def process_ARAP(file):
     ARAP_grouped['FX Rate'] = 'FYE Rate'
 
     # pivot_table = ARAP_grouped[['Due Date', 'Currency', 'Sum of Amount', 'Reference', 'Item / Description', 'Bill Account', 'FX Rate']]
-    pivot_table = ARAP_grouped[['Due Date', 'Contact', 'Currency', 'Amount', 'Reference', 'Item / Description', 'Bill Account', 'FX Rate']]
+    pivot_table = ARAP_grouped[['Date', 'Contact', 'Currency', 'Amount', 'Reference', 'Item / Description', 'Bill Account', 'FX Rate']]
     pivot_table.rename(columns={'Reference': 'Bill Reference'}, inplace=True)
-    pivot_table.rename(columns={'Due Date': 'Date'}, inplace=True)
+    # pivot_table.rename(columns={'Due Date': 'Date'}, inplace=True)
     pivot_table.rename(columns={'Amount': 'Total Amount (SGD)'}, inplace=True) ########
     pivot_table[['Tax Included in Amount', 'Internal Notes', 'Amount Paid', 'Payment Method', 'Payment Account', 'Payment Ref #', 'Transaction Fee Included (SGD)', 'Tax Included in Transaction Fees (SGD)', 'Transaction Fee Expense Account', 'Amount Withholding', 'Withholding Ref #']] = ''
 
