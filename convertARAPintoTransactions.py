@@ -12,31 +12,34 @@ def process_ARAP(file):
         ARAP_cleaned['Currency'] = 'LCY'
     
     if 'Foreign Amount' in ARAP_cleaned.columns: 
-        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Currency', 'Foreign Amount']] 
+        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Supplier', 'Currency', 'Foreign Amount']] ##########
         ARAP_cleaned.rename(columns={'Foreign Amount': 'Amount'}, inplace=True)
+        ARAP_cleaned.rename(columns={'Supplier': 'Contact'}, inplace=True)###########
     else:
-        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Currency', 'Amount']] 
+        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Customer', 'Currency', 'Amount']] #############
+        ARAP_cleaned.rename(columns={'Customer': 'Contact'}, inplace=True)
     ARAP_cleaned = ARAP_cleaned.dropna(subset=['Due Date'])
 
-    ARAP_grouped = ARAP_cleaned.groupby(['Due Date', 'Currency']).agg({'Amount': 'sum'})
-    ARAP_grouped = ARAP_grouped.reset_index()
-    ARAP_grouped.rename(columns={'Amount': 'Sum of Amount'}, inplace=True)
+    # ARAP_grouped = ARAP_cleaned.groupby(['Due Date', 'Currency']).agg({'Amount': 'sum'})
+    ARAP_grouped = ARAP_cleaned.reset_index(drop=True) ##############
+    # ARAP_grouped.rename(columns={'Amount': 'Sum of Amount'}, inplace=True)
     ARAP_grouped['Item / Description'] = f"FYE2023 Conversion: {'AP' if AP else 'AR'} Balance Transfer"
     ARAP_grouped['Reference'] = "FYE2023 Conversion: " + ARAP_grouped['Currency'] + " Ageing Total Due on " + ARAP_grouped['Due Date']
     ARAP_grouped['Bill Account'] = 'Conversion Clearing Account'
     ARAP_grouped['FX Rate'] = 'FYE Rate'
 
-    pivot_table = ARAP_grouped[['Due Date', 'Currency', 'Sum of Amount', 'Reference', 'Item / Description', 'Bill Account', 'FX Rate']]
+    # pivot_table = ARAP_grouped[['Due Date', 'Currency', 'Sum of Amount', 'Reference', 'Item / Description', 'Bill Account', 'FX Rate']]
+    pivot_table = ARAP_grouped[['Due Date', 'Contact', 'Currency', 'Amount', 'Reference', 'Item / Description', 'Bill Account', 'FX Rate']]
     pivot_table.rename(columns={'Reference': 'Bill Reference'}, inplace=True)
     pivot_table.rename(columns={'Due Date': 'Date'}, inplace=True)
-    pivot_table.rename(columns={'Sum of Amount': 'Total Amount (SGD)'}, inplace=True)
-    pivot_table[['Supplier', 'Tax Included in Amount', 'Internal Notes', 'Amount Paid', 'Payment Method', 'Payment Account', 'Payment Ref #', 'Transaction Fee Included (SGD)', 'Tax Included in Transaction Fees (SGD)', 'Transaction Fee Expense Account', 'Amount Withholding', 'Withholding Ref #']] = ''
+    pivot_table.rename(columns={'Amount': 'Total Amount (SGD)'}, inplace=True) ########
+    pivot_table[['Tax Included in Amount', 'Internal Notes', 'Amount Paid', 'Payment Method', 'Payment Account', 'Payment Ref #', 'Transaction Fee Included (SGD)', 'Tax Included in Transaction Fees (SGD)', 'Transaction Fee Expense Account', 'Amount Withholding', 'Withholding Ref #']] = ''
 
-    final_data = pivot_table[[f"Bill Reference", 'Supplier', 'Date', 'Item / Description', 'Bill Account', 'Tax Included in Amount', 'Total Amount (SGD)', 'Internal Notes', 'Amount Paid', 'Payment Method', 'Payment Account', 'Payment Ref #', 'Transaction Fee Included (SGD)', 'Tax Included in Transaction Fees (SGD)', 'Transaction Fee Expense Account', 'Amount Withholding', 'Withholding Ref #', 'Currency']]
+    final_data = pivot_table[[f"Bill Reference", 'Contact', 'Date', 'Item / Description', 'Bill Account', 'Tax Included in Amount', 'Total Amount (SGD)', 'Internal Notes', 'Amount Paid', 'Payment Method', 'Payment Account', 'Payment Ref #', 'Transaction Fee Included (SGD)', 'Tax Included in Transaction Fees (SGD)', 'Transaction Fee Expense Account', 'Amount Withholding', 'Withholding Ref #', 'Currency']]
 
     if not AP:
         final_data.rename(columns={'Bill Reference': 'Invoice Reference'}, inplace=True)
-        final_data.rename(columns={'Supplier': 'Customer'}, inplace=True)
+        # final_data.rename(columns={'Supplier': 'Customer'}, inplace=True)
         final_data.rename(columns={'Bill Account': 'Invoice Account'}, inplace=True)
 
     return final_data
