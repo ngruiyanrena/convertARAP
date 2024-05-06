@@ -12,19 +12,22 @@ def process_ARAP(file):
         ARAP_cleaned['Currency'] = 'LCY'
     
     if 'Foreign Amount' in ARAP_cleaned.columns: 
-        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Supplier', 'Currency', 'Foreign Amount']] ##########
+        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Supplier', 'No.', 'Currency', 'Foreign Amount']] ##########
         ARAP_cleaned.rename(columns={'Foreign Amount': 'Amount'}, inplace=True)
         ARAP_cleaned.rename(columns={'Supplier': 'Contact'}, inplace=True)###########
     else:
-        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Customer', 'Currency', 'Amount']] #############
+        ARAP_cleaned = ARAP_cleaned[['Due Date', 'Customer', 'No.' ,'Currency', 'Amount']] #############
         ARAP_cleaned.rename(columns={'Customer': 'Contact'}, inplace=True)
     ARAP_cleaned = ARAP_cleaned.dropna(subset=['Due Date'])
+
+    ARAP_cleaned = ARAP_cleaned.drop_duplicates()
 
     # ARAP_grouped = ARAP_cleaned.groupby(['Due Date', 'Currency']).agg({'Amount': 'sum'})
     ARAP_grouped = ARAP_cleaned.reset_index(drop=True) ##############
     # ARAP_grouped.rename(columns={'Amount': 'Sum of Amount'}, inplace=True)
     ARAP_grouped['Item / Description'] = f"FYE2023 Conversion: {'AP' if AP else 'AR'} Balance Transfer"
-    ARAP_grouped['Reference'] = "FYE2023 Conversion: " + ARAP_grouped['Currency'] + " Ageing Total Due on " + ARAP_grouped['Due Date']
+    ARAP_grouped['Reference'] = ARAP_grouped['No.'].fillna("Bill" if AP else "Invoice").astype(str) + " (" + ARAP_grouped['Currency'] + " FYE2023 Conversion)"
+    # "FYE2023 Conversion: " + ARAP_grouped['Currency'] + " Ageing Total Due on " + ARAP_grouped['Due Date']
     ARAP_grouped['Bill Account'] = 'Conversion Clearing Account'
     ARAP_grouped['FX Rate'] = 'FYE Rate'
 
